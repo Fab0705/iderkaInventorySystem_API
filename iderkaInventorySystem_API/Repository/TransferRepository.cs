@@ -39,6 +39,8 @@ namespace iderkaInventorySystem_API.Repository
                 .Select (t => new
                 {
                     t.IdTransf,
+                    t.DateTransf,
+                    t.ArrivalDate,
                     OriginLocation = new
                     {
                         t.Origin.IdLoc,
