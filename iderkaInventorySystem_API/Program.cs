@@ -11,7 +11,6 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.Add(new ServiceDescriptor(typeof(iUser), new UserRepository()));
-builder.Services.Add(new ServiceDescriptor(typeof(iClient), new ClientRepository()));
 builder.Services.Add(new ServiceDescriptor(typeof(iLogisticChief), new LogisticChiefRepository()));
 builder.Services.Add(new ServiceDescriptor(typeof(iStorageLocation), new StorageLocationRepository()));
 builder.Services.Add(new ServiceDescriptor(typeof(iRegion), new RegionRepository()));
