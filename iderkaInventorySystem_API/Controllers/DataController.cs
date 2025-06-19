@@ -5,7 +5,7 @@ namespace iderkaInventorySystem_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DataController : Controller
+    public class DataController : Controller 
     {
         private readonly iRegion _reg;
         private readonly iStorageLocation _stl;
