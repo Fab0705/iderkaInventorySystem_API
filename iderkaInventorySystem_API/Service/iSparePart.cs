@@ -7,6 +7,7 @@ namespace iderkaInventorySystem_API.Service
     {
         Task<IEnumerable<object>> GetAllProducts();
         Task<object?> GetProdDetailedById (string id);
+        Task<object?> GetProdDetailedByNumPart(string numPart);
         Task<object?> GetProdDetailedByLoc(string idLoc);
         Task Add(SparePart spr);
         Task Update(SparePart updatedProduct);
