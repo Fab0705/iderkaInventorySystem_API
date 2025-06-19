@@ -89,6 +89,7 @@ namespace iderkaInventorySystem_API.Repository
                     dt.IdSpare,
                     dt.Quantity,
                     dt.IdSpareNavigation.DescPart,
+                    dt.IdSpareNavigation.NumberPart
                 })
             };
         }
