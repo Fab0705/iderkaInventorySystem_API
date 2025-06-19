@@ -31,6 +31,13 @@ namespace iderkaInventorySystem_API.Controllers
             return product == null ? NotFound() : Ok(product);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> GetByNumPart([FromQuery] string query)
+        {
+            var product = await _spr.GetProdDetailedByNumPart(query);
+            return product == null ? NotFound() : Ok(product);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] JsonElement json)
         {

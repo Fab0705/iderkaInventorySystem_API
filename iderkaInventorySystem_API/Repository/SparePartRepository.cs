@@ -118,6 +118,32 @@ namespace iderkaInventorySystem_API.Repository
                 .ToListAsync();
         }
 
+        public async Task<object?> GetProdDetailedByNumPart(string numPart)
+        {
+            return await dbContext.SpareParts
+                .Where(sp => sp.NumberPart.Contains(numPart))
+                .Select(sp => new
+                {
+                    sp.IdSpare,
+                    sp.NumberPart,
+                    sp.DescPart,
+                    sp.Rework,
+                    SparePartStocks = sp.SparePartStocks.Select(ps => new
+                    {
+                        ps.IdLoc,
+                        ps.Quantity,
+                        Location = new
+                        {
+                            ps.IdLocNavigation.IdLoc,
+                            ps.IdLocNavigation.NameSt,
+                            ps.IdLocNavigation.DescStLoc
+                        }
+                    }).ToList()
+                })
+                .Take(10)
+                .ToListAsync();
+        }
+
         public string GetSparePartId()
         {
             int nextId = 1;
