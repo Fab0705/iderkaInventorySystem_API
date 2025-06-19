@@ -72,7 +72,7 @@ namespace iderkaInventorySystem_API.Controllers
             if (result == null)
                 return Unauthorized(new { message = "Credenciales incorrectas" });
 
-            return Ok(new { message = result });
+            return Ok(result);
         }
     }
 }

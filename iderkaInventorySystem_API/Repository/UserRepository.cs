@@ -48,6 +48,7 @@ namespace iderkaInventorySystem_API.Repository
                     u.Pwd,
                     u.Email,
                     u.IdRols,
+                    u.IdLoc,
                     u.IdLocNavigation.NameSt
                 })
                 .ToListAsync();
@@ -64,6 +65,7 @@ namespace iderkaInventorySystem_API.Repository
                     u.Pwd,
                     u.Email,
                     u.IdRols,
+                    u.IdLoc,
                     u.IdLocNavigation.NameSt
                 })
                 .FirstOrDefaultAsync();
@@ -88,32 +90,41 @@ namespace iderkaInventorySystem_API.Repository
 
         public async Task<object> Login(string username, string password)
         {
-            // Buscar en tabla de usuarios normales (con roles)
             var user = await dbContext.Users
                 .Where(u => u.Usr == username && u.Pwd == password)
                 .Include(u => u.IdRols)
+                .Include(u => u.IdLocNavigation)
                 .FirstOrDefaultAsync();
 
-            // Buscar en tabla de jefes de logística
-            var logisticUser = await dbContext.LogisticChiefs
-                .Where(u => u.Usr == username && u.Pwd == password)
-                .FirstOrDefaultAsync();
-
-            // Si se encontró en la tabla de usuarios
             if (user != null)
             {
                 var firstRole = user.IdRols.FirstOrDefault()?.RolName ?? "Sin rol";
-                return $"Bienvenido {firstRole} {user.Usr}";
+                return new
+                {
+                    Username = user.Usr,
+                    Emails = user.Email,
+                    Roles = firstRole,
+                    LocId = user.IdLoc,
+                    LocName = user.IdLocNavigation?.NameSt ?? "Sin ubicación",
+                    LocReg = user.IdLocNavigation?.IdReg ?? "Sin region"
+                };
             }
 
-            // Si se encontró en la tabla de jefes de logística
+            var logisticUser = await dbContext.LogisticChiefs
+                .Where(u => u.Usr == username && u.Pwd == password)
+                .FirstOrDefaultAsync();
+            
             if (logisticUser != null)
             {
-                return $"Bienvenido Jefe de Logística {logisticUser.Usr}";
+                return new
+                {
+                    Username = logisticUser.Usr,
+                    Emails = logisticUser.Email,
+                    Roles = "Jefe de Logística",
+                };
             }
 
-            // No se encontró en ninguna tabla
-            return "Usuario no encontrado";
+            return null;
         }
 
         public async Task Update(User usr)
