@@ -71,6 +71,7 @@ namespace iderkaInventorySystem_API.Repository
                 {
                     p.IdDetOrd,
                     p.IdSpare,
+                    p.IdSpareNavigation.NumberPart,
                     p.IdSpareNavigation.DescPart,
                     p.Quantity,
                 })
