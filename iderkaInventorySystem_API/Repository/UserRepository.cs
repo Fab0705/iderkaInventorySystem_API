@@ -94,6 +94,7 @@ namespace iderkaInventorySystem_API.Repository
                 .Where(u => u.Usr == username && u.Pwd == password)
                 .Include(u => u.IdRols)
                 .Include(u => u.IdLocNavigation)
+                .ThenInclude(u => u.IdRegNavigation)
                 .FirstOrDefaultAsync();
 
             if (user != null)
@@ -106,7 +107,9 @@ namespace iderkaInventorySystem_API.Repository
                     Roles = firstRole,
                     LocId = user.IdLoc,
                     LocName = user.IdLocNavigation?.NameSt ?? "Sin ubicación",
-                    LocReg = user.IdLocNavigation?.IdReg ?? "Sin region"
+                    LocDir = user.IdLocNavigation?.DescStLoc ?? "Sin dirección",
+                    LocIdReg = user.IdLocNavigation?.IdReg ?? "Sin region",
+                    LocRegName = user.IdLocNavigation?.IdRegNavigation?.DescReg ?? "Sin nombre region"
                 };
             }
 
