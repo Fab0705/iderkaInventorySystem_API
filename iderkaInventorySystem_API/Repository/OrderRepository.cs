@@ -14,21 +14,36 @@ namespace iderkaInventorySystem_API.Repository
             try
             {
                 ordDTO.IdOrd = GetOrderId();
-                ordDTO.DateOrd = DateTime.Now; // Asigna la fecha actual
+                ordDTO.DateOrd = DateTime.Now;
+                ordDTO.StatusOrd = "Entregado"; // Se registra directamente como entregado
 
-                int currentMaxindex = 1;
+                int currentMaxIndex = 1;
 
                 if (dbContext.DetailOrders.Any())
                 {
                     string lastId = dbContext.DetailOrders.Max(u => u.IdDetOrd);
-                    currentMaxindex = int.Parse(lastId.Substring(1)) + 1; // Incrementa el índice
+                    currentMaxIndex = int.Parse(lastId.Substring(1)) + 1;
                 }
 
                 foreach (var detail in ordDTO.DetailOrders)
                 {
-                    detail.IdDetOrd = $"D{currentMaxindex:D4}";
-                    detail.IdOrd = ordDTO.IdOrd; // Asigna el IdOrd a cada DetailOrder
-                    currentMaxindex++;
+                    detail.IdDetOrd = $"D{currentMaxIndex:D4}";
+                    detail.IdOrd = ordDTO.IdOrd;
+                    currentMaxIndex++;
+
+                    // Buscar el stock del repuesto en la ubicación correspondiente
+                    var stock = await dbContext.SparePartStocks
+                        .FirstOrDefaultAsync(s =>
+                            s.IdSpare == detail.IdSpare &&
+                            s.IdLoc == ordDTO.IdLoc); // el IdLoc debe venir desde el cliente
+
+                    if (stock == null)
+                        throw new Exception($"No hay stock del repuesto {detail.IdSpare} en la ubicación {ordDTO.IdLoc}");
+
+                    if (stock.Quantity < detail.Quantity)
+                        throw new Exception($"Stock insuficiente para el repuesto {detail.IdSpare}");
+
+                    stock.Quantity -= detail.Quantity;
                 }
 
                 dbContext.Orders.Add(ordDTO);
@@ -36,7 +51,8 @@ namespace iderkaInventorySystem_API.Repository
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("Error al agregar orden:", ex);
+                throw; // o manejar el error como prefieras
             }
         }
 
