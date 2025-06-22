@@ -10,19 +10,35 @@ namespace iderkaInventorySystem_API.Controllers
     public class TransferController : Controller
     {
         private readonly iTransfer _tran;
-        public TransferController(iTransfer tran)
+        private readonly iEmail _emailService;
+        public TransferController(iTransfer tran, iEmail emailService)
         {
             _tran = tran;
+            _emailService = emailService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTransfers() => Ok(await _tran.GetAllTransfers());
+
+        [HttpGet("by-origin/{idLoc}")]
+        public async Task<IActionResult> GetTransferByLocation(string idLoc)
+        {
+            var transfer = await _tran.GetDetailedTransferByLoc(idLoc);
+            return transfer == null ? NotFound() : Ok(transfer);
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTransferId(string id)
         {
             var transfer = await _tran.GetDetailTransferById(id);
             return transfer == null ? NotFound() : Ok(transfer);
+        }
+
+        [HttpPost("email/sendReport")]
+        public async Task<IActionResult> SendConditionReport([FromBody] ConditionReport report)
+        {
+            await _emailService.SendConditionReport(report);
+            return Ok(new { message = "Correo enviado correctamente." });
         }
 
         [HttpPost]
