@@ -68,27 +68,34 @@ namespace iderkaInventorySystem_API.Repository
 
         public async Task<object?> GetProdDetailedById(string id)
         {
-            return await dbContext.SpareParts
-                .Where(sp => sp.IdSpare == id)
-                .Select(sp => new
+            var sparePart = await dbContext.SpareParts
+                .Include(sp => sp.SparePartStocks)
+                .ThenInclude(ps => ps.IdLocNavigation)
+                .FirstOrDefaultAsync(sp => sp.IdSpare == id);
+
+            if (sparePart == null)
+            {
+                return null; // O lanzar una excepción si prefieres
+            }
+
+            return new
+            {
+                sparePart.IdSpare,
+                sparePart.NumberPart,
+                sparePart.DescPart,
+                sparePart.Rework,
+                SparePartStocks = sparePart.SparePartStocks.Select(ps => new
                 {
-                    sp.IdSpare,
-                    sp.NumberPart,
-                    sp.DescPart,
-                    sp.Rework,
-                    SparePartStocks = sp.SparePartStocks.Select(ps => new
+                    ps.IdLoc,
+                    ps.Quantity,
+                    Location = new
                     {
-                        ps.IdLoc,
-                        ps.Quantity,
-                        Location = new
-                        {
-                            ps.IdLocNavigation.IdLoc,
-                            ps.IdLocNavigation.NameSt,
-                            ps.IdLocNavigation.DescStLoc
-                        }
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+                        ps.IdLocNavigation.IdLoc,
+                        ps.IdLocNavigation.NameSt,
+                        ps.IdLocNavigation.DescStLoc
+                    }
+                }).ToList()
+            };
         }
 
         public async Task<object?> GetProdDetailedByLoc(string idLoc)
@@ -182,6 +189,21 @@ namespace iderkaInventorySystem_API.Repository
 
                 await dbContext.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> UpdateStock(string idSpare, string idLoc, int quantity)
+        {
+            var stock = await dbContext.SparePartStocks
+                .FirstOrDefaultAsync(s => s.IdSpare == idSpare && s.IdLoc == idLoc);
+
+            if (stock != null)
+            {
+                stock.Quantity = quantity; // Actualiza la cantidad existente
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
         }
     }
 }

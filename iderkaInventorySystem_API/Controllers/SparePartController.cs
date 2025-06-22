@@ -66,6 +66,13 @@ namespace iderkaInventorySystem_API.Controllers
             return NoContent();
         }
 
+        [HttpPut("{idSpare}/stock/{idLoc}")]
+        public async Task<IActionResult> UpdateStock(string idSpare, string idLoc, [FromQuery] int quantity)
+        {
+            var updated = await _spr.UpdateStock(idSpare, idLoc, quantity);
+            return updated ? NoContent() : NotFound();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
