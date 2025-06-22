@@ -17,6 +17,8 @@ builder.Services.Add(new ServiceDescriptor(typeof(iRegion), new RegionRepository
 builder.Services.Add(new ServiceDescriptor(typeof(iSparePart), new SparePartRepository()));
 builder.Services.Add(new ServiceDescriptor(typeof(iTransfer), new TransferRepository()));
 builder.Services.Add(new ServiceDescriptor(typeof(iOrder), new OrderRepository()));
+builder.Services.Add(new ServiceDescriptor(typeof(iNotification), new NotificationsRepository()));
+builder.Services.AddScoped<iEmail, EmailRepository>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
