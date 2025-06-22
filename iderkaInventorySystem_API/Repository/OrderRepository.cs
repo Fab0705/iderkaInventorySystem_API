@@ -16,13 +16,19 @@ namespace iderkaInventorySystem_API.Repository
                 ordDTO.IdOrd = GetOrderId();
                 ordDTO.DateOrd = DateTime.Now; // Asigna la fecha actual
 
-                int index = 1;
+                int currentMaxindex = 1;
+
+                if (dbContext.DetailOrders.Any())
+                {
+                    string lastId = dbContext.DetailOrders.Max(u => u.IdDetOrd);
+                    currentMaxindex = int.Parse(lastId.Substring(1)) + 1; // Incrementa el índice
+                }
 
                 foreach (var detail in ordDTO.DetailOrders)
                 {
-                    detail.IdDetOrd = GetDetOrderId(index);
+                    detail.IdDetOrd = $"D{currentMaxindex:D4}";
                     detail.IdOrd = ordDTO.IdOrd; // Asigna el IdOrd a cada DetailOrder
-                    index++;
+                    currentMaxindex++;
                 }
 
                 dbContext.Orders.Add(ordDTO);
@@ -36,20 +42,27 @@ namespace iderkaInventorySystem_API.Repository
 
         public async Task<IEnumerable> GetAllOrders() => await dbContext.Orders.ToListAsync();
 
-        public string GetDetOrderId(int nextId)
+        public async Task<object?> GetDetailedOrderByLoc(string idLoc)
         {
-            // hay registros?
-            if (dbContext.DetailOrders.Any())
-            {
-                string lastId = dbContext.DetailOrders.Max(u => u.IdDetOrd);
-
-                int numericPart = int.Parse(lastId.Substring(1));
-
-                nextId = numericPart + 1;
-            }
-
-            return $"D{nextId:D4}";
-            //return $"D{index:D4}";
+            return await dbContext.Orders
+                .Where(o => o.IdLoc == idLoc)
+                .Select(o => new
+                {
+                    o.IdOrd,
+                    o.WorkOrd,
+                    o.DescOrd,
+                    o.DateOrd,
+                    o.StatusOrd,
+                    SpareParts = o.DetailOrders.Select(p => new
+                    {
+                        p.IdDetOrd,
+                        p.IdSpare,
+                        p.IdSpareNavigation.NumberPart,
+                        p.IdSpareNavigation.DescPart,
+                        p.Quantity,
+                    })
+                })
+                .ToListAsync();
         }
 
         public async Task<object?> GetOrderById(string id)

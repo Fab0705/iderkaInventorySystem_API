@@ -8,9 +8,9 @@ namespace iderkaInventorySystem_API.Service
         Task<IEnumerable> GetAllOrders();
         Task<object?> GetOrderById(string id);
         Task<object?> GetOrderByStatus(string status);
+        Task<object?> GetDetailedOrderByLoc(string idLoc);
         Task Add(Order ordDTO);
         Task<bool> UpdateStatus(string id);
         string GetOrderId();
-        string GetDetOrderId(int nextId);
     }
 }
