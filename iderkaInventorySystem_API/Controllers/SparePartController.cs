@@ -32,10 +32,10 @@ namespace iderkaInventorySystem_API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> GetByNumPart([FromQuery] string query)
+        public async Task<IActionResult> GetByNumPart([FromQuery] string query, [FromQuery] string locId)
         {
-            var product = await _spr.GetProdDetailedByNumPart(query);
-            return product == null ? NotFound() : Ok(product);
+            var products = await _spr.GetProdDetailedByNumPart(query, locId);
+            return products == null ? NotFound() : Ok(products);
         }
 
         [HttpPost]
