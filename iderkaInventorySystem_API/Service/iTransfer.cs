@@ -8,7 +8,7 @@ namespace iderkaInventorySystem_API.Service
         Task Add(Transfer transfDTO);
         Task<bool> UpdateStatus(string id);
         Task<object?> GetDetailTransferById(string id);
+        Task<object?> GetDetailedTransferByLoc(string idLoc);
         string GetTransferId();
-        string GetDetTrasnferId(int index);
     }
 }

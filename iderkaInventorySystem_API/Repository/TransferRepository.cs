@@ -15,13 +15,19 @@ namespace iderkaInventorySystem_API.Repository
                 transfDTO.IdTransf = GetTransferId();
                 transfDTO.DateTransf = DateTime.Now; // Asigna la fecha actual
 
-                int index = 1;
+                int currentMaxindex = 1;
+
+                if (dbContext.DetailTransfers.Any())
+                {
+                    string lastId = dbContext.DetailTransfers.Max(u => u.IdDetTransf);
+                    currentMaxindex = int.Parse(lastId.Substring(1)) + 1; // Incrementa el índice
+                }
 
                 foreach (var detail in transfDTO.DetailTransfers)
                 {
-                    detail.IdDetTransf = GetDetTrasnferId(index);
+                    detail.IdDetTransf = $"D{currentMaxindex:D4}";
                     detail.IdTransf = transfDTO.IdTransf; // Asigna el IdTransf a cada DetailTransfer
-                    index++;
+                    currentMaxindex++;
                 }
 
                 dbContext.Transfers.Add(transfDTO);
@@ -52,6 +58,41 @@ namespace iderkaInventorySystem_API.Repository
                         t.Destiny.NameSt
                     },
                     t.StatusTransf
+                })
+                .ToListAsync();
+        }
+
+        public async Task<object?> GetDetailedTransferByLoc(string idLoc)
+        {
+            return await dbContext.Transfers
+                .Where(t => t.Origin.IdLoc == idLoc)
+                .Select(t => new
+                {
+                    t.IdTransf,
+                    t.DateTransf,
+                    t.ArrivalDate,
+                    OriginLocation = new
+                    {
+                        t.Origin.IdLoc,
+                        t.Origin.NameSt
+                    },
+                    DestinyLocation = new
+                    {
+                        t.Destiny.IdLoc,
+                        t.Destiny.NameSt
+                    },
+                    t.StatusTransf,
+                    SpareParts = t.DetailTransfers.Select(dt => new
+                    {
+                        dt.IdDetTransf,
+                        dt.IdSpare,
+                        dt.Quantity,
+                        SparePart = new
+                        {
+                            dt.IdSpareNavigation.DescPart,
+                            dt.IdSpareNavigation.NumberPart
+                        }
+                    })
                 })
                 .ToListAsync();
         }
@@ -92,20 +133,6 @@ namespace iderkaInventorySystem_API.Repository
                     dt.IdSpareNavigation.NumberPart
                 })
             };
-        }
-
-        public string GetDetTrasnferId(int index)
-        {
-            if (dbContext.DetailTransfers.Any())
-            {
-                string lastId = dbContext.DetailTransfers.Max(u => u.IdDetTransf);
-
-                int numericPart = int.Parse(lastId.Substring(1));
-
-                index = numericPart + 1;
-            }
-
-            return $"D{index:D4}";
         }
 
         public string GetTransferId()
