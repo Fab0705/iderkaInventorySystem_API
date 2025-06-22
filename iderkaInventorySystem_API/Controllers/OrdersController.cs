@@ -18,6 +18,13 @@ namespace iderkaInventorySystem_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _ord.GetAllOrders());
 
+        [HttpGet("by-location/{idLoc}")]
+        public async Task<IActionResult> GetByLocation(string idLoc)
+        {
+            var order = await _ord.GetDetailedOrderByLoc(idLoc);
+            return order == null ? NotFound() : Ok(order);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
