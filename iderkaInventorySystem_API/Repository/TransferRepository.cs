@@ -197,9 +197,20 @@ namespace iderkaInventorySystem_API.Repository
                                 ps.IdLocNavigation.IdReg == destiny);
 
                         if (prodStockDestiny == null)
-                            return false;
+                        {
+                            prodStockDestiny = new SparePartStock
+                            {
+                                IdSpare = t.IdSpare,
+                                IdLoc = transfer.Destiny.IdLoc,
+                                Quantity = t.Quantity
+                            };
 
-                        prodStockDestiny.Quantity += t.Quantity;
+                            await dbContext.SparePartStocks.AddAsync(prodStockDestiny);
+                        }
+                        else
+                        {
+                            prodStockDestiny.Quantity += t.Quantity;
+                        }
                     }
                     transfer.ArrivalDate = DateTime.Now; // Asigna la fecha de entrega
                     transfer.StatusTransf = "Entregado";
