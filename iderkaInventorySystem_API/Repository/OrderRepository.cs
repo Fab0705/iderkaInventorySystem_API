@@ -56,7 +56,7 @@ namespace iderkaInventorySystem_API.Repository
             }
         }
 
-        public async Task<IEnumerable> GetAllOrders() => await dbContext.Orders.ToListAsync();
+        public async Task<IEnumerable> GetAllOrders() => await dbContext.Orders.Include(o => o.DetailOrders).ToListAsync();
 
         public async Task<object?> GetDetailedOrderByLoc(string idLoc)
         {
@@ -107,10 +107,7 @@ namespace iderkaInventorySystem_API.Repository
             };
         }
 
-        public Task<object?> GetOrderByStatus(string status)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IEnumerable> GetAllDetailOrders() => await dbContext.DetailOrders.Include(od => od.IdSpareNavigation).ToListAsync();
 
         public string GetOrderId()
         {
